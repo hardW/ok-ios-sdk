@@ -1,7 +1,6 @@
 #import <Foundation/Foundation.h>
 #import <CommonCrypto/CommonDigest.h>
 #import <UIKit/UIKit.h>
-#import <AdSupport/ASIdentifierManager.h>
 #import "OKSDK.h"
 #ifdef __IPHONE_9_0
 #import <SafariServices/SafariServices.h>
@@ -411,39 +410,6 @@ static OKConnection *connection;
         errorBlock([NSError errorWithDomain:OK_SDK_ERROR_CODE_DOMAIN code:OKSDKErrorCodeNotIntialized userInfo:@{NSLocalizedDescriptionKey: @"OKSDK not initialized you should call initWithAppIdAndAppKey and sdkInit first"}]);
     }
 }
-
-
-
-
-
-+ (void)sdkInit:(OKResultBlock)successBlock error:(OKErrorBlock)errorBlock {
-    NSString *deviceId = [[[ASIdentifierManager sharedManager] advertisingIdentifier] UUIDString];
-    NSError *error;
-    NSString *sessionData = [ @{@"version":@"2",@"device_id":deviceId,@"client_type":@"SDK_IOS",@"client_version":OK_SDK_VERSION} ok_json:error];
-    if (error) {
-        return errorBlock(error);
-    }
-    if (connection) {
-        [connection invokeMethod:@"sdk.init" arguments:@{@"session_data": sessionData} session: false signed: false success:^(id data) {
-            connection.sdkToken = data[@"session_key"];
-            successBlock(data);
-        } error:errorBlock];
-    } else {
-        errorBlock([NSError errorWithDomain:OK_SDK_ERROR_CODE_DOMAIN code:OKSDKErrorCodeNotIntialized userInfo:@{NSLocalizedDescriptionKey: OK_SDK_NOT_INIT_COMMON_ERROR}]);
-    }
-}
-
-+ (void)getInstallSource:(OKResultBlock)successBlock error:(OKErrorBlock)errorBlock {
-    NSString *deviceId = [[[ASIdentifierManager sharedManager] advertisingIdentifier] UUIDString];
-    if (connection) {
-        [connection invokeMethod:@"sdk.getInstallSource" arguments:@{@"adv_id" : deviceId} session:false signed:false success:^(id data) {
-            successBlock(data);
-        } error:errorBlock];
-    } else {
-        errorBlock([NSError errorWithDomain:OK_SDK_ERROR_CODE_DOMAIN code:OKSDKErrorCodeNotIntialized userInfo:@{NSLocalizedDescriptionKey : OK_SDK_NOT_INIT_COMMON_ERROR}]);
-    }
-}
-
 
 + (void)clearAuth {
     [connection clearAuth];
